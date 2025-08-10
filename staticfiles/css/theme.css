@@ -1,0 +1,112 @@
+/* =========================
+   BRAND COLORS
+========================= */
+:root {
+    --prussian-blue: #012F52;
+    --indigo-dye: #064077;
+    --yale-blue: #083C6B;
+    --ut-orange: #FC8301;
+    --black: #000000;
+}
+
+/* =========================
+   BACKGROUNDS
+========================= */
+.bg-prussian-blue { background-color: var(--prussian-blue) !important; }
+.bg-indigo-dye { background-color: var(--indigo-dye) !important; }
+.bg-yale-blue { background-color: var(--yale-blue) !important; }
+.bg-ut-orange { background-color: var(--ut-orange) !important; }
+
+/* =========================
+   TEXT COLORS
+========================= */
+.text-prussian-blue { color: var(--prussian-blue) !important; }
+.text-indigo-dye { color: var(--indigo-dye) !important; }
+.text-yale-blue { color: var(--yale-blue) !important; }
+.text-ut-orange { color: var(--ut-orange) !important; }
+
+/* =========================
+   BUTTONS
+========================= */
+.btn-ut-orange {
+    background-color: var(--ut-orange);
+    color: white;
+    border: none;
+}
+.btn-ut-orange:hover {
+    background-color: #e47200;
+    color: white;
+}
+.btn-prussian-blue {
+    background-color: var(--prussian-blue);
+    color: white;
+    border: none;
+}
+.btn-prussian-blue:hover {
+    background-color: #011f38;
+}
+
+/* =========================
+   LINKS
+========================= */
+a {
+    color: var(--ut-orange);
+    text-decoration: none;
+}
+a:hover {
+    color: #e47200;
+    text-decoration: underline;
+}
+
+/* =========================
+   PRODUCT CARDS
+========================= */
+.product-card {
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: white;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+.product-card .card-title {
+    color: var(--prussian-blue);
+    font-weight: bold;
+}
+.product-card .price {
+    color: var(--ut-orange);
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+.navbar {
+    font-size: 1rem;
+}
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+.nav-link {
+    color: white !important;
+}
+.nav-link:hover {
+    color: var(--ut-orange) !important;
+}
+
+/* =========================
+   FOOTER
+========================= */
+footer {
+    padding: 30px 0;
+}
+footer a {
+    color: #ddd;
+}
+footer a:hover {
+    color: white;
+}

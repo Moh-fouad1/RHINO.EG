@@ -1,0 +1,38 @@
+:root {
+    --color-prussian-blue: #012F52;
+    --color-indigo-dye: #064077;
+    --color-yale-blue: #083C6B;
+    --color-ut-orange: #FC8301;
+    --color-black: #000000;
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--color-prussian-blue);
+}
+
+.navbar a.nav-link {
+    color: white;
+}
+
+.navbar a.nav-link:hover {
+    background-color: var(--color-indigo-dye);
+    color: var(--color-ut-orange);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--color-ut-orange);
+    border-color: var(--color-ut-orange);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-yale-blue);
+    border-color: var(--color-yale-blue);
+}
+
+/* Footer */
+footer {
+    background-color: var(--color-prussian-blue);
+    color: white;
+}
