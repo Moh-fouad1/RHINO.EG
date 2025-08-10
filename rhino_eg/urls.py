@@ -18,9 +18,13 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import path, include
 
 urlpatterns = [
+    path('shop/', include('shop.urls')),
+    path('customs/', include('shop.urls')),
     path('admin/', admin.site.urls),
+     path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %}Upload Custom Design - RHINO.EG{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4 text-center">Upload Your Custom Poster Design 🎨</h2>
+    <p class="text-center text-muted mb-5">
+        Upload your design, choose a size, and we’ll handle the rest.  
+        Our team will contact you via phone to confirm your order.
+    </p>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Select Poster Size</label>
+                        {{ form.size|add_class:"form-select" }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Upload Design File</label>
+                        {{ form.design_file|add_class:"form-control" }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        {{ form.phone_number|add_class:"form-control" }}
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100">Submit Design</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
