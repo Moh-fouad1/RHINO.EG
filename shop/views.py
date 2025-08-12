@@ -40,7 +40,8 @@ def upload_custom_design(request):
             custom_design = form.save(commit=False)
             custom_design.user = request.user
             custom_design.save()
-            return redirect('shop_home')
+            custom_design.add_to_cart()
+            return redirect('cart_view')
     else:
         form = CustomDesignForm()
     

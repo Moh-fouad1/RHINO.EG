@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class Category(models.Model):
@@ -30,15 +31,31 @@ class CustomDesign(models.Model):
         ('A3', 'A3 (29.7 × 42 cm)'),
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='custom_designs')
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True)
-    design_file = models.ImageField(upload_to='custom_designs/')
-    size = models.CharField(max_length=2, choices=SIZE_CHOICES)
-    phone_number = models.CharField(max_length=15)
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    size = models.CharField(max_length=10, choices=SIZE_CHOICES)
+    framed = models.BooleanField(default=False)
+    design_file = models.FileField(upload_to='custom_designs/')
+    phone_number = models.CharField(max_length=20)
+
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default='Pending')
 
     def __str__(self):
-        return f"{self.title} by {self.user.username}"
+        return f"{self.user.username} - {self.size} - {'Framed' if self.framed else 'Unframed'}"
+    
+    def add_to_cart(self):
+        from cart.models import CartItem
+        CartItem.objects.create(
+            user=self.user,
+            product_name=f"Custom Design ({self.size}, {'Framed' if self.framed else 'Unframed'})",
+            quantity=1,
+            price=self.calculate_price(),
+            custom_design=self
+        )
+        
+    def calculate_price(self):
+        base_prices = {'A3': 25, 'A4': 20, 'A5': 15}  
+        price = base_prices.get(self.size, 15)
+        if self.framed:
+            price += 50  
+        return price
+

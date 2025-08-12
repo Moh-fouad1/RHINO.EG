@@ -4,7 +4,7 @@ from .models import CustomDesign
 class CustomDesignForm(forms.ModelForm):
     class Meta:
         model = CustomDesign
-        fields = ['title', 'description', 'design_file', 'size', 'phone_number']
+        fields = ['size', 'framed', 'design_file', 'phone_number']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
         }
