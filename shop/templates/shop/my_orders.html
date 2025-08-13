@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load shop_extras %}
+
+{% block title %}My Orders - RHINO.EG{% endblock %}
+
+{% block content %}
+<div class="my-orders-container">
+    <div class="container py-5">
+        <h1 class="orders-title mb-4">My Orders</h1>
+        
+        {% if orders %}
+            <div class="orders-list">
+                {% for order in orders %}
+                    <div class="order-card card mb-4">
+                        <div class="card-header bg-prussian-blue text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">Order #{{ order.order_number }}</h5>
+                                    <small>{{ order.created_at|date:"F d, Y" }}</small>
+                                </div>
+                                <span class="badge bg-ut-orange">{{ order.get_status_display }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="order-items-preview">
+                                        {% for item in order.orderitem_set.all|slice:":3" %}
+                                            <div class="order-item-preview d-flex align-items-center mb-2">
+                                                <div class="item-image me-2">
+                                                    {% if item.custom_design %}
+                                                        <img src="{{ item.custom_design.design_image.url }}" alt="Custom Design" class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                            <i class="fas fa-image text-muted fa-sm"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="item-info flex-grow-1">
+                                                    <h6 class="mb-0">
+                                                        {% if item.custom_design %}
+                                                            Custom Design - {{ item.custom_design.title }}
+                                                        {% else %}
+                                                            {{ item.product_name }}
+                                                        {% endif %}
+                                                    </h6>
+                                                    <small class="text-muted">Qty: {{ item.quantity }}</small>
+                                                </div>
+                                                <div class="item-price">
+                                                    <strong>{{ item.price|multiply:item.quantity }} LE</strong>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                        
+                                        {% if order.orderitem_set.count > 3 %}
+                                            <div class="more-items text-center mt-2">
+                                                <small class="text-muted">
+                                                    +{{ order.orderitem_set.count|add:"-3" }} more items
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="order-summary">
+                                        <div class="summary-item d-flex justify-content-between mb-2">
+                                            <span>Total:</span>
+                                            <strong class="text-ut-orange">{{ order.total_amount }} LE</strong>
+                                        </div>
+                                        <div class="summary-item d-flex justify-content-between mb-2">
+                                            <span>Items:</span>
+                                            <span>{{ order.orderitem_set.count }}</span>
+                                        </div>
+                                        <div class="summary-item d-flex justify-content-between mb-3">
+                                            <span>Payment:</span>
+                                            <span>{{ order.get_payment_method_display }}</span>
+                                        </div>
+                                        
+                                        <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-primary btn-sm w-100">
+                                            <i class="fas fa-eye me-2"></i>View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty Orders -->
+            <div class="empty-orders text-center py-5">
+                <div class="empty-orders-icon mb-4">
+                    <i class="fas fa-shopping-bag fa-4x text-muted"></i>
+                </div>
+                <h3 class="text-muted mb-3">No Orders Yet</h3>
+                <p class="text-muted mb-4">You haven't placed any orders yet. Start shopping to see your order history here.</p>
+                <div class="empty-orders-actions">
+                    <a href="{% url 'product_list' %}" class="btn btn-ut-orange me-3">
+                        <i class="fas fa-shopping-bag me-2"></i>Browse Products
+                    </a>
+                    <a href="{% url 'upload_custom_design' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-palette me-2"></i>Create Custom Design
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.my-orders-container {
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+    min-height: 100vh;
+}
+
+.orders-title {
+    color: var(--prussian-blue);
+    font-weight: 700;
+    border-bottom: 3px solid var(--ut-orange);
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.order-card {
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.order-card .card-header {
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.order-items-preview {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.order-item-preview {
+    padding: 0.5rem;
+    background: var(--gray-50);
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.order-item-preview:hover {
+    background: var(--gray-100);
+}
+
+.item-info h6 {
+    font-size: 0.9rem;
+    color: var(--prussian-blue);
+}
+
+.item-price {
+    color: var(--ut-orange);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.summary-item {
+    font-size: 0.9rem;
+}
+
+.summary-item strong {
+    color: var(--ut-orange);
+}
+
+.more-items {
+    padding: 0.5rem;
+    background: var(--gray-100);
+    border-radius: 0.5rem;
+}
+
+.empty-orders {
+    background: var(--white);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    margin: 2rem 0;
+}
+
+.empty-orders-icon {
+    opacity: 0.5;
+}
+
+.empty-orders-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .order-card .row {
+        text-align: center;
+    }
+    
+    .order-card .col-md-8,
+    .order-card .col-md-4 {
+        margin-bottom: 1rem;
+    }
+    
+    .empty-orders-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .empty-orders-actions .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+</style>
+{% endblock %}

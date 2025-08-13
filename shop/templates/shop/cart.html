@@ -1,5 +1,347 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
+{% load shop_extras %}
+
+{% block title %}Shopping Cart - RHINO.EG{% endblock %}
+
 {% block content %}
-<h1>Your Cart</h1>
-<p>This is the shopping cart page. We will build functionality later.</p>
+<div class="cart-container">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="cart-title mb-4">Shopping Cart</h1>
+                
+                {% if cart_items %}
+                    <div class="row">
+                        <!-- Cart Items -->
+                        <div class="col-lg-8">
+                            <div class="cart-items-section">
+                                {% for item in cart_items %}
+                                    <div class="cart-item card mb-3">
+                                        <div class="card-body">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-2">
+                                                    {% if item.custom_design %}
+                                                        <img src="{{ item.custom_design.design_image.url }}" alt="Custom Design" class="cart-item-image img-fluid rounded">
+                                                    {% else %}
+                                                        <div class="cart-item-placeholder">
+                                                            <i class="fas fa-image text-muted"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h6 class="cart-item-title mb-2">
+                                                        {% if item.custom_design %}
+                                                            Custom Design - {{ item.custom_design.title }}
+                                                        {% else %}
+                                                            {{ item.product_name }}
+                                                        {% endif %}
+                                                    </h6>
+                                                    {% if item.custom_design %}
+                                                        <p class="cart-item-description text-muted mb-2">
+                                                            {{ item.custom_design.description|truncatewords:20 }}
+                                                        </p>
+                                                    {% endif %}
+                                                    <div class="cart-item-price">
+                                                        <span class="price-amount">{{ item.price }} LE</span>
+                                                        {% if item.original_price and item.original_price != item.price %}
+                                                            <span class="price-original text-muted text-decoration-line-through ms-2">{{ item.original_price }} LE</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="quantity-controls">
+                                                        <label for="quantity-{{ item.id }}" class="form-label">Quantity</label>
+                                                        <div class="input-group">
+                                                            <button class="btn btn-outline-secondary btn-sm quantity-btn" type="button" onclick="updateQuantity({{ item.id }}, -1)">-</button>
+                                                            <input type="number" class="form-control form-control-sm text-center" id="quantity-{{ item.id }}" value="{{ item.quantity }}" min="1" max="10" onchange="updateQuantity({{ item.id }}, 0, this.value)">
+                                                            <button class="btn btn-outline-secondary btn-sm quantity-btn" type="button" onclick="updateQuantity({{ item.id }}, 1)">+</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <div class="cart-item-total mb-2">
+                                                        <strong>{{ item.price|multiply:item.quantity }} LE</strong>
+                                                    </div>
+                                                    <button class="btn btn-outline-danger btn-sm" onclick="removeItem({{ item.id }})">
+                                                        <i class="fas fa-trash"></i> Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Cart Summary -->
+                        <div class="col-lg-4">
+                            <div class="cart-summary card">
+                                <div class="card-header bg-prussian-blue text-white">
+                                    <h5 class="mb-0">Order Summary</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="summary-item d-flex justify-content-between mb-2">
+                                        <span>Subtotal:</span>
+                                        <span>{{ total }} LE</span>
+                                    </div>
+                                    <div class="summary-item d-flex justify-content-between mb-2">
+                                        <span>Shipping:</span>
+                                        <span>Free</span>
+                                    </div>
+                                    <hr>
+                                    <div class="summary-total d-flex justify-content-between mb-3">
+                                        <strong>Total:</strong>
+                                        <strong class="text-ut-orange">{{ total }} LE</strong>
+                                    </div>
+                                    
+                                    <a href="{% url 'checkout' %}" class="btn btn-ut-orange w-100 mb-3">
+                                        <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+                                    </a>
+                                    
+                                    <a href="{% url 'product_list' %}" class="btn btn-outline-primary w-100">
+                                        <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Promo Code -->
+                            <div class="promo-section card mt-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">Have a Promo Code?</h6>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Enter promo code">
+                                        <button class="btn btn-outline-secondary" type="button">Apply</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Empty Cart -->
+                    <div class="empty-cart text-center py-5">
+                        <div class="empty-cart-icon mb-4">
+                            <i class="fas fa-shopping-cart fa-4x text-muted"></i>
+                        </div>
+                        <h3 class="text-muted mb-3">Your cart is empty</h3>
+                        <p class="text-muted mb-4">Looks like you haven't added any items to your cart yet.</p>
+                        <div class="empty-cart-actions">
+                            <a href="{% url 'product_list' %}" class="btn btn-ut-orange me-3">
+                                <i class="fas fa-shopping-bag me-2"></i>Browse Products
+                            </a>
+                            <a href="{% url 'upload_custom_design' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-palette me-2"></i>Create Custom Design
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cart-container {
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+    min-height: 100vh;
+}
+
+.cart-title {
+    color: var(--prussian-blue);
+    font-weight: 700;
+    border-bottom: 3px solid var(--ut-orange);
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.cart-items-section {
+    background: var(--white);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.cart-item {
+    border: 1px solid var(--gray-200);
+    transition: box-shadow 0.2s ease;
+}
+
+.cart-item:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.cart-item-image {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+}
+
+.cart-item-placeholder {
+    width: 100%;
+    height: 80px;
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+}
+
+.cart-item-title {
+    color: var(--prussian-blue);
+    font-weight: 600;
+}
+
+.cart-item-description {
+    font-size: 0.9rem;
+}
+
+.price-amount {
+    font-weight: 600;
+    color: var(--ut-orange);
+}
+
+.price-original {
+    font-size: 0.9rem;
+}
+
+.quantity-controls .input-group {
+    max-width: 120px;
+}
+
+.quantity-btn {
+    border-color: var(--gray-300);
+}
+
+.quantity-btn:hover {
+    background-color: var(--ut-orange);
+    border-color: var(--ut-orange);
+    color: var(--white);
+}
+
+.cart-summary {
+    position: sticky;
+    top: 2rem;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-item {
+    font-size: 0.95rem;
+}
+
+.summary-total {
+    font-size: 1.1rem;
+    color: var(--prussian-blue);
+}
+
+.promo-section {
+    border: 1px solid var(--gray-200);
+}
+
+.empty-cart {
+    background: var(--white);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    margin: 2rem 0;
+}
+
+.empty-cart-icon {
+    opacity: 0.5;
+}
+
+.empty-cart-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .cart-item .row {
+        text-align: center;
+    }
+    
+    .cart-item .col-md-2,
+    .cart-item .col-md-6 {
+        margin-bottom: 1rem;
+    }
+    
+    .empty-cart-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .empty-cart-actions .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+</style>
+
+<script>
+function updateQuantity(itemId, change, newValue = null) {
+    let quantity;
+    if (newValue !== null) {
+        quantity = parseInt(newValue);
+    } else {
+        const currentQuantity = parseInt(document.getElementById(`quantity-${itemId}`).value);
+        quantity = currentQuantity + change;
+    }
+    
+    if (quantity < 1) quantity = 1;
+    if (quantity > 10) quantity = 10;
+    
+    // Update the input value
+    document.getElementById(`quantity-${itemId}`).value = quantity;
+    
+    // Send AJAX request to update cart
+    fetch(`/cart/update/${itemId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: JSON.stringify({
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Reload to update totals
+        } else {
+            alert('Error updating cart: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating cart');
+    });
+}
+
+function removeItem(itemId) {
+    if (confirm('Are you sure you want to remove this item from your cart?')) {
+        fetch(`/cart/remove/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error removing item: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error removing item');
+        });
+    }
+}
+</script>
+
+<!-- CSRF Token for AJAX requests -->
+{% csrf_token %}
 {% endblock %}

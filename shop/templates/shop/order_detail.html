@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load shop_extras %}
+
+{% block title %}Order #{{ order.order_number }} - RHINO.EG{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+    <div class="container py-5">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'my_orders' %}" class="text-decoration-none">My Orders</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Order #{{ order.order_number }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Order Information -->
+            <div class="col-lg-8">
+                <div class="order-info-section">
+                    <!-- Order Header -->
+                    <div class="order-header card mb-4">
+                        <div class="card-header bg-prussian-blue text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">Order #{{ order.order_number }}</h4>
+                                <span class="badge bg-ut-orange">{{ order.get_status_display }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-prussian-blue">Order Date</h6>
+                                    <p>{{ order.created_at|date:"F d, Y" }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-prussian-blue">Order Status</h6>
+                                    <p>{{ order.get_status_display }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="order-items-section card mb-4">
+                        <div class="card-header bg-prussian-blue text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-box me-2"></i>Order Items
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% for item in order.orderitem_set.all %}
+                                <div class="order-item d-flex align-items-center mb-3 p-3 border rounded">
+                                    <div class="item-image me-3">
+                                        {% if item.custom_design %}
+                                            <img src="{{ item.custom_design.design_image.url }}" alt="Custom Design" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                                <i class="fas fa-image text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="item-details flex-grow-1">
+                                        <h6 class="mb-1">
+                                            {% if item.custom_design %}
+                                                Custom Design - {{ item.custom_design.title }}
+                                            {% else %}
+                                                {{ item.product_name }}
+                                            {% endif %}
+                                        </h6>
+                                        <p class="text-muted mb-1">Quantity: {{ item.quantity }}</p>
+                                        <p class="text-muted mb-0">Price: {{ item.price }} LE each</p>
+                                    </div>
+                                    <div class="item-total text-end">
+                                        <strong class="text-ut-orange">{{ item.price|multiply:item.quantity }} LE</strong>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Shipping Information -->
+                    <div class="shipping-info-section card mb-4">
+                        <div class="card-header bg-prussian-blue text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-shipping-fast me-2"></i>Shipping Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-prussian-blue">Shipping Address</h6>
+                                    <p class="mb-1">{{ order.first_name }} {{ order.last_name }}</p>
+                                    <p class="mb-1">{{ order.address }}</p>
+                                    <p class="mb-1">{{ order.city }}{% if order.postal_code %}, {{ order.postal_code }}{% endif %}</p>
+                                    <p class="mb-0">{{ order.phone }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-prussian-blue">Contact Information</h6>
+                                    <p class="mb-1"><strong>Email:</strong> {{ order.email }}</p>
+                                    <p class="mb-1"><strong>Phone:</strong> {{ order.phone }}</p>
+                                    {% if order.notes %}
+                                        <h6 class="text-prussian-blue mt-3">Order Notes</h6>
+                                        <p class="mb-0">{{ order.notes }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="order-summary-section">
+                    <div class="order-summary card">
+                        <div class="card-header bg-prussian-blue text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-receipt me-2"></i>Order Summary
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="summary-item d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>{{ order.total_amount }} LE</span>
+                            </div>
+                            <div class="summary-item d-flex justify-content-between mb-2">
+                                <span>Shipping:</span>
+                                <span>Free</span>
+                            </div>
+                            <div class="summary-item d-flex justify-content-between mb-2">
+                                <span>Tax:</span>
+                                <span>0 LE</span>
+                            </div>
+                            <hr>
+                            <div class="summary-total d-flex justify-content-between mb-3">
+                                <strong>Total:</strong>
+                                <strong class="text-ut-orange">{{ order.total_amount }} LE</strong>
+                            </div>
+                            
+                            <div class="payment-info mb-3">
+                                <h6 class="text-prussian-blue">Payment Method</h6>
+                                <p class="mb-0">{{ order.get_payment_method_display }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Status Timeline -->
+                    <div class="order-timeline card mt-3">
+                        <div class="card-header bg-prussian-blue text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-clock me-2"></i>Order Timeline
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline">
+                                <div class="timeline-item active">
+                                    <div class="timeline-marker"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Order Placed</h6>
+                                        <small class="text-muted">{{ order.created_at|date:"M d, Y H:i" }}</small>
+                                    </div>
+                                </div>
+                                
+                                {% if order.status != 'pending' %}
+                                    <div class="timeline-item active">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">Order Confirmed</h6>
+                                            <small class="text-muted">{{ order.created_at|date:"M d, Y H:i" }}</small>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}
+                                    <div class="timeline-item active">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">Processing</h6>
+                                            <small class="text-muted">In progress</small>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if order.status == 'shipped' or order.status == 'delivered' %}
+                                    <div class="timeline-item active">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">Shipped</h6>
+                                            <small class="text-muted">On the way</small>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if order.status == 'delivered' %}
+                                    <div class="timeline-item active">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">Delivered</h6>
+                                            <small class="text-muted">Order completed</small>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="order-actions mt-3">
+                        <a href="{% url 'my_orders' %}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Orders
+                        </a>
+                        <button class="btn btn-outline-secondary w-100" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.order-detail-container {
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+    min-height: 100vh;
+}
+
+.order-header {
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-md);
+}
+
+.order-items-section,
+.shipping-info-section {
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.order-item {
+    background: var(--gray-50);
+    transition: box-shadow 0.2s ease;
+}
+
+.order-item:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+.order-summary-section {
+    position: sticky;
+    top: 2rem;
+}
+
+.order-summary,
+.order-timeline {
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-item {
+    font-size: 0.95rem;
+}
+
+.summary-total {
+    font-size: 1.1rem;
+    color: var(--prussian-blue);
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--gray-300);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -1.5rem;
+    top: 0.25rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--gray-400);
+    border: 2px solid var(--white);
+}
+
+.timeline-item.active .timeline-marker {
+    background: var(--ut-orange);
+}
+
+.timeline-content h6 {
+    color: var(--prussian-blue);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.breadcrumb-item a {
+    color: var(--ut-orange);
+}
+
+.breadcrumb-item a:hover {
+    color: var(--prussian-blue);
+}
+
+.breadcrumb-item.active {
+    color: var(--gray-600);
+}
+
+@media (max-width: 768px) {
+    .order-summary-section {
+        position: static;
+        margin-top: 2rem;
+    }
+    
+    .timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline-marker {
+        left: -1.25rem;
+    }
+}
+</style>
+{% endblock %}

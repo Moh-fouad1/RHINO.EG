@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load shop_extras %}
+
+{% block title %}Checkout - RHINO.EG{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="container py-5">
+        <h1 class="checkout-title mb-4">Checkout</h1>
+        
+        <div class="row">
+            <!-- Checkout Form -->
+            <div class="col-lg-8">
+                <div class="checkout-form-section">
+                    <form method="post" class="checkout-form" id="checkout-form">
+                        {% csrf_token %}
+                        
+                        <!-- Shipping Information -->
+                        <div class="form-section card mb-4">
+                            <div class="card-header bg-prussian-blue text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-shipping-fast me-2"></i>Shipping Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="first_name" class="form-label">First Name *</label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="last_name" class="form-label">Last Name *</label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number *</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Address *</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="city" class="form-label">City *</label>
+                                    <input type="text" class="form-control" id="city" name="city" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Information -->
+                        <div class="form-section card mb-4">
+                            <div class="card-header bg-prussian-blue text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-credit-card me-2"></i>Payment Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="payment_method" class="form-label">Payment Method *</label>
+                                    <select class="form-select" id="payment_method" name="payment_method" required>
+                                        <option value="">Select payment method</option>
+                                        <option value="cash_on_delivery">Cash on Delivery</option>
+                                        <option value="bank_transfer">Bank Transfer</option>
+                                        <option value="vodafone_cash">Vodafone Cash</option>
+                                        <option value="fawry">Fawry</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Bank Transfer Details -->
+                                <div id="bank-transfer-details" style="display: none;" class="alert alert-info">
+                                    <h6><i class="fas fa-university me-2"></i>Bank Transfer Details</h6>
+                                    <p class="mb-1"><strong>Bank:</strong> Commercial International Bank (CIB)</p>
+                                    <p class="mb-1"><strong>Account Name:</strong> RHINO.EG</p>
+                                    <p class="mb-1"><strong>Account Number:</strong> 1234567890</p>
+                                    <p class="mb-0"><strong>IBAN:</strong> EG123456789012345678901234</p>
+                                    <small class="text-muted">Please include your order number in the transfer reference.</small>
+                                </div>
+                                
+                                <!-- Mobile Payment Details -->
+                                <div id="mobile-payment-details" style="display: none;" class="alert alert-info">
+                                    <h6><i class="fas fa-mobile-alt me-2"></i>Mobile Payment Details</h6>
+                                    <p class="mb-1"><strong>Vodafone Cash:</strong> 01234567890</p>
+                                    <p class="mb-1"><strong>Fawry Code:</strong> RHINO123</p>
+                                    <small class="text-muted">Please include your order number in the payment reference.</small>
+                                </div>
+                                
+                                <!-- Payment Instructions -->
+                                <div class="alert alert-warning">
+                                    <h6><i class="fas fa-info-circle me-2"></i>Payment Instructions</h6>
+                                    <ul class="mb-0">
+                                        <li><strong>Cash on Delivery:</strong> Pay when you receive your order</li>
+                                        <li><strong>Bank Transfer:</strong> Transfer the amount and send us the receipt</li>
+                                        <li><strong>Mobile Payment:</strong> Send payment and include order number</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Notes -->
+                        <div class="form-section card mb-4">
+                            <div class="card-header bg-prussian-blue text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-sticky-note me-2"></i>Order Notes
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">Special Instructions</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any special instructions for your order..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="order-summary-section">
+                    <div class="order-summary card">
+                        <div class="card-header bg-prussian-blue text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-receipt me-2"></i>Order Summary
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Cart Items -->
+                            <div class="order-items mb-3">
+                                {% for item in cart_items %}
+                                    <div class="order-item d-flex justify-content-between align-items-center mb-2">
+                                        <div class="item-info">
+                                            <h6 class="mb-0">{{ item.product_name }}</h6>
+                                            <small class="text-muted">Qty: {{ item.quantity }}</small>
+                                        </div>
+                                        <div class="item-price">
+                                            <strong>{{ item.price|multiply:item.quantity }} LE</strong>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <hr>
+                            
+                            <!-- Totals -->
+                            <div class="order-totals">
+                                <div class="total-item d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>{{ subtotal }} LE</span>
+                                </div>
+                                
+                                {% if discount > 0 %}
+                                    <div class="total-item d-flex justify-content-between mb-2 text-success">
+                                        <span>
+                                            <i class="fas fa-tag me-1"></i>
+                                            Discount ({{ promo_code.code }}):
+                                        </span>
+                                        <span>-{{ discount }} LE</span>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="total-item d-flex justify-content-between mb-2">
+                                    <span>Shipping:</span>
+                                    <span>Free</span>
+                                </div>
+                                <div class="total-item d-flex justify-content-between mb-2">
+                                    <span>Tax:</span>
+                                    <span>0 LE</span>
+                                </div>
+                                <hr>
+                                <div class="total-final d-flex justify-content-between mb-3">
+                                    <strong>Total:</strong>
+                                    <strong class="text-ut-orange">{{ total }} LE</strong>
+                                </div>
+                            </div>
+                            
+                            <!-- Place Order Button -->
+                            <button type="submit" form="checkout-form" class="btn btn-ut-orange w-100 mb-3">
+                                <i class="fas fa-lock me-2"></i>Place Order
+                            </button>
+                            
+                            <a href="{% url 'cart_view' %}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Cart
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Security Notice -->
+                    <div class="security-notice card mt-3">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                            <h6>Secure Checkout</h6>
+                            <p class="text-muted small mb-0">Your payment information is encrypted and secure.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.checkout-container {
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+    min-height: 100vh;
+}
+
+.checkout-title {
+    color: var(--prussian-blue);
+    font-weight: 700;
+    border-bottom: 3px solid var(--ut-orange);
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.checkout-form-section {
+    background: var(--white);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.form-section {
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.form-section .card-header {
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.order-summary-section {
+    position: sticky;
+    top: 2rem;
+}
+
+.order-summary {
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-md);
+}
+
+.order-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.item-info h6 {
+    font-size: 0.9rem;
+    color: var(--prussian-blue);
+}
+
+.item-price {
+    color: var(--ut-orange);
+    font-weight: 600;
+}
+
+.total-item {
+    font-size: 0.95rem;
+}
+
+.total-final {
+    font-size: 1.1rem;
+    color: var(--prussian-blue);
+}
+
+.security-notice {
+    border: 1px solid var(--gray-200);
+    background: var(--gray-50);
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--prussian-blue);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--ut-orange);
+    box-shadow: 0 0 0 0.2rem rgba(252, 131, 1, 0.25);
+}
+
+@media (max-width: 768px) {
+    .order-summary-section {
+        position: static;
+        margin-top: 2rem;
+    }
+}
+</style>
+
+<script>
+document.getElementById('payment_method').addEventListener('change', function() {
+    const bankTransferDetails = document.getElementById('bank-transfer-details');
+    const mobilePaymentDetails = document.getElementById('mobile-payment-details');
+
+    if (this.value === 'bank_transfer') {
+        bankTransferDetails.style.display = 'block';
+        mobilePaymentDetails.style.display = 'none';
+    } else if (this.value === 'vodafone_cash' || this.value === 'fawry') {
+        bankTransferDetails.style.display = 'none';
+        mobilePaymentDetails.style.display = 'block';
+    } else {
+        bankTransferDetails.style.display = 'none';
+        mobilePaymentDetails.style.display = 'none';
+    }
+});
+
+// Form validation
+document.querySelector('.checkout-form').addEventListener('submit', function(e) {
+    const requiredFields = this.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+    
+    if (!isValid) {
+        e.preventDefault();
+        alert('Please fill in all required fields.');
+    }
+});
+</script>
+{% endblock %}
