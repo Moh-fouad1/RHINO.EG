@@ -26,12 +26,7 @@ Authorization: Bearer <your_access_token>
 #### Verify Token
 - **URL:** `POST /api/v1/auth/verify/`
 - **Description:** Verify if a token is valid
-- **Body:**
-  ```json
-  {
-    "token": "string"
-  }
-  ```
+
 
 ### Categories
 
@@ -149,12 +144,7 @@ Authorization: Bearer <your_access_token>
 - **URL:** `POST /api/v1/cart/apply_promo/`
 - **Description:** Apply a promo code to cart
 - **Authentication:** Required
-- **Body:**
-  ```json
-  {
-    "code": "string"
-  }
-  ```
+
 
 #### Checkout
 - **URL:** `POST /api/v1/cart/checkout/`
