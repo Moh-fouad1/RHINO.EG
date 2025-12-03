@@ -89,45 +89,31 @@
             <div class="col-12">
                 <div class="reviews-section">
                     <h3 class="section-title mb-4">Customer Reviews</h3>
-                    
-                    {% if reviews %}
-                        <div class="reviews-list mb-4">
-                            {% for review in reviews %}
-                                <div class="review-item card mb-3">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <div>
-                                                <h6 class="mb-1">{{ review.user.username }}</h6>
-                                                <div class="rating">
-                                                    {% for i in "12345" %}
-                                                        {% if forloop.counter <= review.rating %}
-                                                            <i class="fas fa-star text-warning"></i>
-                                                        {% else %}
-                                                            <i class="far fa-star text-muted"></i>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                            <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
-                                        </div>
-                                        <p class="mb-0">{{ review.comment }}</p>
-                                    </div>
-                                </div>
-                            {% endfor %}
+
+                    <!-- Loading State -->
+                    <div id="reviews-loading" class="text-center py-4" style="display: none;">
+                        <div class="spinner-border text-ut-orange" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-comments fa-2x text-muted mb-3"></i>
-                            <p class="text-muted">No reviews yet. Be the first to review this product!</p>
-                        </div>
-                    {% endif %}
+                        <p class="text-muted mt-2">Loading reviews...</p>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <div class="reviews-list mb-4" id="reviews-container">
+                        <!-- Reviews will be loaded here dynamically -->
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="text-center py-4" id="reviews-empty" style="display: none;">
+                        <i class="fas fa-comments fa-2x text-muted mb-3"></i>
+                        <p class="text-muted">No reviews yet. Be the first to review this product!</p>
+                    </div>
 
                     <!-- Add Review Form -->
                     {% if user.is_authenticated %}
                         <div class="add-review-section">
                             <h5 class="mb-3">Write a Review</h5>
-                            <form method="post" class="review-form">
-                                {% csrf_token %}
+                            <form id="review-form" class="review-form">
                                 <div class="mb-3">
                                     <label for="rating" class="form-label">Rating</label>
                                     <select class="form-select" id="rating" name="rating" required>
@@ -143,7 +129,9 @@
                                     <label for="comment" class="form-label">Comment</label>
                                     <textarea class="form-control" id="comment" name="comment" rows="4" required placeholder="Share your experience with this product..."></textarea>
                                 </div>
-                                <button type="submit" class="btn btn-outline-primary">Submit Review</button>
+                                <button type="submit" class="btn btn-outline-primary" id="submit-review-btn">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Review
+                                </button>
                             </form>
                         </div>
                     {% else %}

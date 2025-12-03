@@ -116,7 +116,20 @@
                                 </div>
                             </div>
                         </div>
-                    </form>
+                    </div>
+
+                    <!-- Checkout Actions -->
+                    <div class="checkout-actions card">
+                        <div class="card-body">
+                            <button type="button" class="btn btn-ut-orange w-100 mb-3" id="place-order-btn">
+                                <i class="fas fa-lock me-2"></i>Place Order
+                            </button>
+
+                            <a href="{% url 'cart_view' %}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Cart
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -130,40 +143,28 @@
                             </h5>
                         </div>
                         <div class="card-body">
-                            <!-- Cart Items -->
-                            <div class="order-items mb-3">
-                                {% for item in cart_items %}
-                                    <div class="order-item d-flex justify-content-between align-items-center mb-2">
-                                        <div class="item-info">
-                                            <h6 class="mb-0">{{ item.product_name }}</h6>
-                                            <small class="text-muted">Qty: {{ item.quantity }}</small>
-                                        </div>
-                                        <div class="item-price">
-                                            <strong>{{ item.price|multiply:item.quantity }} LE</strong>
-                                        </div>
-                                    </div>
-                                {% endfor %}
+                            <!-- Loading State -->
+                            <div id="order-summary-loading" class="text-center py-4" style="display: none;">
+                                <div class="spinner-border text-ut-orange" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="text-muted mt-2">Loading order summary...</p>
                             </div>
-                            
+
+                            <!-- Cart Items -->
+                            <div class="order-items mb-3" id="order-items">
+                                <!-- Order items will be loaded here dynamically -->
+                            </div>
+
                             <hr>
-                            
+
                             <!-- Totals -->
                             <div class="order-totals">
                                 <div class="total-item d-flex justify-content-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span>{{ subtotal }} LE</span>
+                                    <span id="order-subtotal">0 LE</span>
                                 </div>
-                                
-                                {% if discount > 0 %}
-                                    <div class="total-item d-flex justify-content-between mb-2 text-success">
-                                        <span>
-                                            <i class="fas fa-tag me-1"></i>
-                                            Discount ({{ promo_code.code }}):
-                                        </span>
-                                        <span>-{{ discount }} LE</span>
-                                    </div>
-                                {% endif %}
-                                
+
                                 <div class="total-item d-flex justify-content-between mb-2">
                                     <span>Shipping:</span>
                                     <span>Free</span>
@@ -175,18 +176,9 @@
                                 <hr>
                                 <div class="total-final d-flex justify-content-between mb-3">
                                     <strong>Total:</strong>
-                                    <strong class="text-ut-orange">{{ total }} LE</strong>
+                                    <strong class="text-ut-orange" id="order-total">0 LE</strong>
                                 </div>
                             </div>
-                            
-                            <!-- Place Order Button -->
-                            <button type="submit" form="checkout-form" class="btn btn-ut-orange w-100 mb-3">
-                                <i class="fas fa-lock me-2"></i>Place Order
-                            </button>
-                            
-                            <a href="{% url 'cart_view' %}" class="btn btn-outline-secondary w-100">
-                                <i class="fas fa-arrow-left me-2"></i>Back to Cart
-                            </a>
                         </div>
                     </div>
 
@@ -203,6 +195,19 @@
         </div>
     </div>
 </div>
+
+<!-- Hidden Form for Traditional Submission (Fallback) -->
+<form method="post" style="display: none;" id="checkout-form">
+    {% csrf_token %}
+    <input type="hidden" id="form-first_name" name="first_name">
+    <input type="hidden" id="form-last_name" name="last_name">
+    <input type="hidden" id="form-email" name="email">
+    <input type="hidden" id="form-phone" name="phone">
+    <input type="hidden" id="form-address" name="address">
+    <input type="hidden" id="form-city" name="city">
+    <input type="hidden" id="form-payment_method" name="payment_method">
+    <input type="hidden" id="form-notes" name="notes">
+</form>
 
 <style>
 .checkout-container {
